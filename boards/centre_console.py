@@ -4,17 +4,31 @@
 # Peripherals to simulate include: 1 x I2C peripheral (GPIO Expander) and 2 x analog signal (DAC)
 
 import peripherals.pca9555 as pca9555
+import peripherals.dac as dac
 
 import serial
 
 # PCA9555 I2C Address (change based on your setup)
-PCA9555_I2C_ADDRESS = 0x20
+PCA9555_I2C_ADDRESS = pca9555.PCA9555_ADDRESS
 
+NUM_ANALOG_SIGNALS = 2
+
+# Create a peripherals master class with these classes overloading the original functions
 class CenterConsole:
     # Initialize the state of the periperals on this board
-    def init():
+    def __init__(self):
         # TODO: Add initialization for peripherals on board
-        pca_9555 = pca9555.PCA9555()
+        self.pca_9555 = pca9555.PCA9555()
+        
+        # TODO: Start up DAC with pre-programmed analog signals
+        # pedal_dac = dac.DAC()
+        # pedal_dac.start(dac.PEDAL)
+        
+        # steering_dac = dac.DAC()
+        # steering_dac.start(dac.STEERING)
+
+    def get_i2c_address():
+        return PCA9555_I2C_ADDRESS
 
     def handle_message(self, message, message_type):
         if message_type == "I2C":
@@ -42,4 +56,4 @@ class CenterConsole:
                 # TODO: Handle error case (return error message)
 
 
-        # TODO: Handle other message types (SPI/analog)
+        # TODO: Handle other messages

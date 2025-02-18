@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+PCA9555_ADDRESS  = 0x20
+
 # PCA9555 Register Map
 INPUT_PORT_0 = 0x00
 INPUT_PORT_1 = 0x01

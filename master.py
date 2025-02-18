@@ -4,32 +4,46 @@
 
 import boards.power_distribution as power_distribution
 import boards.centre_console as centre_console
-import bms
-import imu
+import boards.bms as bms
 
+import sys
 import serial
-
-valid_boards = {"Power Distribution": power_distribution, "Centre Console": centre_console, "BMS": bms, "IMU": imu}
-default_board = "Power Distribution"
 
 i2c_slave_port = '/dev/ttyACM0'
 baud_rate = 9600
 
+# TODO: Use Protobuf to encode/decode Serial messages prior to writing to slave
+
 def start_simulation(board_to_simulate):
     # Initialize board that was requested
-    board = valid_boards[board_to_simulate]
-    board = ...
+    board = None
+    # TODO: Add more boards that we want to simulate
+    if board_to_simulate == "Centre Console":
+        print("Simulating Centre Console")
+        board = centre_console.CenterConsole()
+    elif board_to_simulate == "Power Distribution":
+        print("Simulating Power Distribution")
+        board = power_distribution.PowerDistribution()
+    elif board_to_simulate == "BMS":
+        print("Simulating BMS")
+        board = bms.BMS()
+    else:
+        # Default is Power Distribution
+        board = power_distribution.PowerDistribution()
+        print("Simulating Power Distribution")
 
     # Wait for message over Serial
     ser = serial.Serial(i2c_slave_port, baud_rate)
 
     # TODO: If board has I2C peripheral enabled, then "program" the slave with the I2C address of the peripheral so that it accepts messages
+    # i2c_address = board.get_i2c_address()
+    # if i2c_address:
+    #     ser.write(i2c_address)
 
     while True:
         if ser.in_waiting > 0:
             data = ser.readline().decode('utf-8').strip()
-
-            # TODO: Use Protobuf to encode/decode these Serial messages to handle things like message types, addressing, etc (for Total Phase Aardvark)
+            print(f"Received message: {data}")
 
             # If I2C message, we only handle write commands
             message_type = ...
@@ -40,17 +54,14 @@ def start_simulation(board_to_simulate):
 
                 ser.write(response.encode())
             else:
-                # TODO: Handle analog signals and error messages
+                # TODO: Handle error messages
+                pass
 
 if __name__ == "__main__":
     # Retrieve board to simulate from command line arguments
-    board_to_simulate = default_board
-
+    argument = None
     if len(sys.argv) > 1:
         arguments = sys.argv[1:]
         argument = " ".join(arguments)
-        
-        if argument in valid_boards.keys():
-            board_to_simulate = argument
 
-    start_simulation(board_to_simulate)
+    start_simulation(arguments)
